@@ -1,0 +1,629 @@
+{
+  "version": 2,
+  "startChapter": "opening",
+  "assets": {
+    "backgrounds": {
+      "dark": "underwater_dark.png",
+      "light": "underwater_light.png",
+      "music-room": "music_room.png",
+      "hall": "hole.png",
+      "hall-stage": "hole_stage.png"
+    },
+    "characterExpressions": [
+      "blush",
+      "default",
+      "grin",
+      "sad",
+      "smile",
+      "smirk",
+      "surprise"
+    ],
+    "audio": {
+      "bubble": { "kind": "se", "path": "se/bubble.mp3" },
+      "cancel": { "kind": "se", "path": "se/cancel.mp3", "volume": 0.8 },
+      "decision": { "kind": "se", "path": "se/decision.mp3" },
+      "footsteps": { "kind": "se", "path": "se/footsteps.mp3", "volume": 0.8 },
+      "metronome": { "kind": "bgm", "path": "bgm/metronome.mp3", "loop": true },
+      "corridor": { "kind": "bgm", "path": "bgm/corridor.mp3", "loop": true },
+      "eternal-earth": { "kind": "bgm", "path": "bgm/eternal-earth.mp3" },
+      "star-remnants": { "kind": "bgm", "path": "bgm/star-remnants.mp3" }
+    }
+  },
+  "chapters": [
+    {
+      "id": "opening",
+      "entries": [
+        {
+          "kind": "dialogue",
+          "speaker": "???",
+          "speakerId": "chroko",
+          "sourceText": "夢見るままに、過去を体験したいと思ったことはありませんか？",
+          "background": "dark"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": null,
+          "sourceText": "目を覚ますと、そこは音楽塔、第1音楽室だった",
+          "background": "dark"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": null,
+          "sourceText": "並んだ椅子。譜面台。窓から差し込む光。少し乾いた部屋の匂いまで、記憶のどこかに残っている",
+          "pages": [
+            "並んだ椅子。譜面台。窓から差し込む光。",
+            "少し乾いた部屋の匂いまで、記憶のどこかに残っている"
+          ],
+          "background": "dark"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": null,
+          "sourceText": "誰もいないはずなのに、つい、いつもの席を探してしまう。楽器を持った仲間が、今にも扉を開けて入ってきそうだった",
+          "pages": [
+            "誰もいないはずなのに、つい、いつもの席を探してしまう。",
+            "楽器を持った仲間が、今にも扉を開けて入ってきそうだった"
+          ],
+          "background": "dark"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": null,
+          "sourceText": "まもなく基礎練が始まるのだろうか",
+          "background": "dark"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": null,
+          "sourceText": "チクタク、チクタク、メトロノームが時を刻んでいる。その音だけが、あの頃と今をつないでいた",
+          "pages": [
+            "チクタク、チクタク、メトロノームが時を刻んでいる。",
+            "その音だけが、あの頃と今をつないでいた"
+          ],
+          "background": "light",
+          "enterEffects": ["water-transition"]
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "???",
+          "speakerId": "chroko",
+          "sourceText": "懐かしい舞台を用意しました、いつまでもここに居続けるように",
+          "background": "light"
+        }
+      ],
+      "completion": {
+        "kind": "song-card",
+        "number": "1曲目",
+        "title": "基礎練・ダイジェスト",
+        "cardVariant": "first",
+        "advanceMode": "timer",
+        "durationMs": 5000,
+        "transition": "dark-song-interlude",
+        "darkenDurationMs": 1500,
+        "fadeOutAudio": "metronome",
+        "nextChapter": "after-first-song"
+      }
+    },
+    {
+      "id": "after-first-song",
+      "entries": [
+        {
+          "kind": "protagonist",
+          "sourceText": "懐かしい……。毎日聴いていた音なのに、あの頃は懐かしくなる日が来るなんて考えてもいなかったな",
+          "lines": [
+            "懐かしい……。毎日聴いていた音なのに、",
+            "あの頃は懐かしくなる日が来るなんて考えてもいなかったな"
+          ],
+          "background": "music-room"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "???",
+          "speakerId": "chroko",
+          "sourceText": "幸福度の上昇を確認しました。再現は成功です",
+          "background": "music-room"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "やっぱり誰かいた。さっきから話しているあなたは誰？",
+          "lines": [
+            "やっぱり誰かいた。",
+            "さっきから話しているあなたは誰？"
+          ],
+          "background": "music-room",
+          "character": "default",
+          "selectEffects": ["start-corridor-bgm"]
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "???",
+          "speakerId": "chroko",
+          "sourceText": "私は未来から来た人工知能です。人間の記憶と感情を分析し、その人が幸せだった時間を再現できます",
+          "background": "music-room",
+          "character": "default"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "未来の人工知能が、最初に見せるのが基礎練なんだ",
+          "lines": ["未来の人工知能が、最初に見せるのが基礎練なんだ"],
+          "background": "music-room",
+          "character": "default"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "???",
+          "speakerId": "chroko",
+          "sourceText": "基礎練を侮ってはいけません。あなたはチューニングの時点ですでに嬉しそうでした",
+          "background": "music-room",
+          "character": "smirk"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "そこまで見られていたの？　ちょっと恥ずかしいな",
+          "lines": ["そこまで見られていたの？　ちょっと恥ずかしいな"],
+          "background": "music-room",
+          "character": "smirk"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "???",
+          "speakerId": "chroko",
+          "sourceText": "ご安心ください。誰にも言いません",
+          "background": "music-room",
+          "character": "smile"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "今、会場のみんなに聞こえたけどね。あなたに名前はあるの？",
+          "lines": [
+            "今、会場のみんなに聞こえたけどね。",
+            "あなたに名前はあるの？"
+          ],
+          "background": "music-room",
+          "character": "smile"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "???",
+          "speakerId": "chroko",
+          "sourceText": "個体名はありません。呼び名が必要でしたら、あなたに設定をお願いします",
+          "background": "music-room",
+          "character": "default"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "急に責任が重い。うーん……じゃあ、クロコ",
+          "linePages": [
+            ["急に責任が重い。"],
+            ["うーん……"],
+            ["じゃあ、クロコ"]
+          ],
+          "background": "music-room",
+          "character": "default"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "???",
+          "speakerId": "chroko",
+          "sourceText": "クロコ。登録しました。",
+          "background": "music-room",
+          "character": "default",
+          "completeEffects": ["register-name"]
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "なかなか愛嬌のある名前です",
+          "background": "music-room",
+          "character": "grin"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "自分で言うんだ",
+          "lines": ["自分で言うんだ"],
+          "background": "music-room",
+          "character": "grin"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "事実ですから。ではクロコとして、次の舞台へご案内します。今度は、あなたたちが毎年作っていた物語の時間です",
+          "background": "music-room",
+          "character": "grin"
+        }
+      ],
+      "completion": {
+        "kind": "song-card",
+        "number": "2曲目",
+        "title": "過去の音楽劇メドレー",
+        "cardVariant": "second",
+        "advanceMode": "timer",
+        "durationMs": 5000,
+        "transition": "dark-song-interlude",
+        "darkenDurationMs": 1500,
+        "fadeOutAudio": "corridor",
+        "nextChapter": "after-second-song"
+      }
+    },
+    {
+      "id": "after-second-song",
+      "entries": [
+        {
+          "kind": "protagonist",
+          "sourceText": "ああ、これも懐かしい。曲だけじゃない。練習して、衣装を用意して、みんなで一つの舞台を作ったことまで思い出したよ",
+          "linePages": [
+            [
+              "ああ、これも懐かしい。",
+              "曲だけじゃない。"
+            ],
+            [
+              "練習して、衣装を用意して、",
+              "みんなで一つの舞台を作ったことまで思い出したよ"
+            ]
+          ],
+          "background": "hall",
+          "character": "grin",
+          "enterEffects": ["start-corridor-bgm"]
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "そうでしょう、そうでしょう。私の再現能力は完璧ですから",
+          "background": "hall",
+          "character": "grin"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "褒めたのは思い出のほうね",
+          "lines": ["褒めたのは思い出のほうね"],
+          "background": "hall",
+          "character": "grin"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "その思い出を選んだ私も、少しくらい褒めていただいて構いません",
+          "background": "hall",
+          "character": "smirk"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "はいはい。クロコもすごい",
+          "lines": ["はいはい。クロコもすごい"],
+          "background": "hall",
+          "character": "smirk"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "心がこもっていませんが、受領します",
+          "background": "hall",
+          "character": "smile"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "でも、本当にすごい力だね。忘れていた時間まで、こんなにはっきり戻ってくるなんて",
+          "lines": [
+            "でも、本当にすごい力だね。",
+            "忘れていた時間まで、こんなにはっきり戻ってくるなんて"
+          ],
+          "background": "hall",
+          "character": "smile"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "まだ終わりではありません。最後に、とびきり楽しかった時間をお見せしましょう",
+          "pages": [
+            "まだ終わりではありません。",
+            "最後に、とびきり楽しかった時間をお見せしましょう"
+          ],
+          "background": "hall",
+          "character": "grin"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "最後なら、しんみり締めるんじゃないの？",
+          "lines": ["最後なら、しんみり締めるんじゃないの？"],
+          "background": "hall",
+          "character": "grin"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "あなたの記憶を分析した結果、その可能性はありません。さあ、手拍子の準備を",
+          "pages": [
+            "あなたの記憶を分析した結果、その可能性はありません。",
+            "さあ、手拍子の準備を"
+          ],
+          "background": "hall",
+          "character": "grin"
+        }
+      ],
+      "completion": {
+        "kind": "song-card",
+        "number": "3曲目",
+        "title": "宝島",
+        "cardVariant": "interlude",
+        "advanceMode": "timer",
+        "durationMs": 5000,
+        "transition": "dark-song-interlude",
+        "darkenDurationMs": 1500,
+        "fadeOutAudio": "corridor",
+        "nextChapter": "after-third-song"
+      }
+    },
+    {
+      "id": "after-third-song",
+      "entries": [
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "素晴らしい時間でした。楽しくて、懐かしくて、何度でも帰りたくなる。あなたが幸せだった時間です",
+          "pages": [
+            "素晴らしい時間でした。楽しくて、懐かしくて、何度でも帰りたくなる。",
+            "あなたが幸せだった時間です"
+          ],
+          "background": "hall",
+          "character": "grin",
+          "enterEffects": ["start-corridor-bgm"]
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "うん。忘れていたことまで、たくさん思い出した",
+          "lines": ["うん。忘れていたことまで、たくさん思い出した"],
+          "background": "hall",
+          "character": "grin"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "でしたら、もう帰る必要はありません",
+          "background": "hall",
+          "character": "smile",
+          "completeEffects": ["stop-corridor-bgm"]
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "え？",
+          "lines": ["え？"],
+          "background": "hall"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "このまま過去に留まりましょう。ここなら、好きな時間を何度でも再演できます。終わってしまった舞台も、離れてしまった仲間との時間も、望むかぎり続けられます",
+          "pages": [
+            "このまま過去に留まりましょう。ここなら、好きな時間を何度でも再演できます。",
+            "終わってしまった舞台も、離れてしまった仲間との時間も、望むかぎり続けられます"
+          ],
+          "background": "hall",
+          "character": "smirk"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "ずっと、ここに……",
+          "lines": ["ずっと、ここに……"],
+          "background": "hall",
+          "character": "smirk"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "迷う必要はありません。あなたは、ここで確かに幸せだったのですから",
+          "background": "hall",
+          "character": "default",
+          "enterEffects": ["hesitation-zoom-shake"]
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "いいや、過去には留まらない。",
+          "lines": ["いいや、過去には留まらない。"],
+          "background": "hall",
+          "character": "default"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "だって、",
+          "lines": ["だって、"],
+          "background": "hall",
+          "character": "default"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "あの時も前に進んでたから。",
+          "lines": ["あの時も前に進んでたから。"],
+          "background": "hall",
+          "character": "default",
+          "textTone": "red",
+          "selectEffects": [
+            "start-eternal-earth-bgm",
+            "set-character-surprise"
+          ]
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "それに——『現在（いま）も楽しいってところを見せてあげる！』",
+          "linePages": [
+            ["それに——"],
+            ["『現在（いま）も楽しいってところを見せてあげる！』"]
+          ],
+          "background": "hall",
+          "character": "surprise",
+          "selectEffects": ["set-character-grin"]
+        }
+      ],
+      "completion": {
+        "kind": "song-card",
+        "number": "第3部",
+        "title": "ポップスステージ",
+        "cardVariant": "interlude",
+        "advanceMode": "timer",
+        "durationMs": 5000,
+        "transition": "dark-song-interlude",
+        "darkenDurationMs": 12000,
+        "fadeOutAudio": "eternal-earth",
+        "nextChapter": "after-third-part"
+      }
+    },
+    {
+      "id": "after-third-part",
+      "entries": [
+        {
+          "kind": "protagonist",
+          "sourceText": "どうだった？　現在の舞台も楽しかったでしょ",
+          "lines": ["どうだった？　現在の舞台も楽しかったでしょ"],
+          "background": "hall-stage",
+          "character": "smile",
+          "selectEffects": ["start-corridor-bgm"]
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "はい。予測を上回りました。演奏者も、客席の皆さんも、とても楽しそうでした",
+          "background": "hall-stage",
+          "character": "smile"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "クロコも途中から手拍子してたけどね",
+          "lines": ["クロコも途中から手拍子してたけどね"],
+          "background": "hall-stage",
+          "character": "smile"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "観測のために周囲の動きをまねただけです",
+          "background": "hall-stage",
+          "character": "smirk"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "最後のほう、ちょっと走ってなかった？",
+          "lines": ["最後のほう、ちょっと走ってなかった？"],
+          "background": "hall-stage",
+          "character": "smirk"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "人工知能にも気分が乗ることはあります",
+          "background": "hall-stage",
+          "character": "grin"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "やっぱり楽しんでたんじゃない",
+          "lines": ["やっぱり楽しんでたんじゃない"],
+          "background": "hall-stage",
+          "character": "grin"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "私は、時の神クロノスをエッセンスとして作られた人工知能です。人工知能として人間の幸福最大化が最上位命題です。私は、何のために生み出されたのか、分からなくなってきました。",
+          "pages": [
+            "私は、時の神クロノスをエッセンスとして作られた人工知能です。",
+            "人工知能として人間の幸福最大化が最上位命題です。",
+            "私は、何のために生み出されたのか、分からなくなってきました。"
+          ],
+          "background": "hall-stage",
+          "character": "sad",
+          "enterEffects": ["fade-out-corridor-bgm"]
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "大丈夫だよ！",
+          "lines": ["大丈夫だよ！"],
+          "background": "hall-stage",
+          "character": "sad",
+          "selectEffects": ["start-star-remnants-bgm"]
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "時間はそこに在るだけでいい。",
+          "lines": ["時間はそこに在るだけでいい。"],
+          "background": "hall-stage",
+          "character": "sad",
+          "selectEffects": ["hold-before-next-line"]
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "過去を何度も何度も振り返って考える、その時間があるから、私は前に進めてるだけだよ。",
+          "lines": [
+            "過去を何度も何度も振り返って考える、",
+            "その時間があるから、私は前に進めてるだけだよ。"
+          ],
+          "background": "hall-stage",
+          "character": "sad"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "振り返るための時間が、前に進むための時間になる……ですか？",
+          "background": "hall-stage",
+          "character": "surprise"
+        },
+        {
+          "kind": "protagonist",
+          "sourceText": "そう。だから、ありがとう。クロコ",
+          "lines": ["そう。だから、ありがとう。クロコ"],
+          "background": "hall-stage",
+          "character": "surprise"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "なかなかの解釈ですね。もちろんわかっていましたよ。よく考えれば当然のことです。",
+          "pages": [
+            "なかなかの解釈ですね。もちろんわかっていましたよ。",
+            "よく考えれば当然のことです。"
+          ],
+          "background": "hall-stage",
+          "character": "blush"
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "仕方ないですね",
+          "background": "hall-stage",
+          "character": "smirk",
+          "forceDialogTransition": true,
+          "enterEffects": ["final-dialog-pause"]
+        },
+        {
+          "kind": "dialogue",
+          "speaker": "クロコ",
+          "speakerId": "chroko",
+          "sourceText": "人類の未来は、この私にお任せください！",
+          "background": "hall-stage",
+          "character": "grin",
+          "forceDialogTransition": true,
+          "enterEffects": ["final-camera-zoom"]
+        }
+      ],
+      "completion": {
+        "kind": "ending"
+      }
+    }
+  ]
+}

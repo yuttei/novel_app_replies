@@ -1,0 +1,40 @@
+# Node.jsの依存ライブラリとビルド・テスト生成物
+node_modules/
+dist/
+test-results/
+playwright-report/
+
+# 旧Python環境の残存フォルダ（ローカルに残っている場合）
+.micromamba/
+__pycache__/
+*.py[cod]
+
+# ローカル設定
+.env
+.env.*
+
+# macOSやエディタが作る一時ファイル
+.DS_Store
+*.swp
+*.swo
+
+# ログファイル
+*.log
+
+# Publicリポジトリに含めない非公開の企画資料・退避ファイル
+# - 企画資料の置き場所はリポジトリ直下の private/docs/ だが、
+#   非公開資料の混入を防ぐため、どの階層の private/ フォルダも除外する
+private/
+
+# Publicリポジトリに含めない音源（音源用のPrivateリポジトリ yuttei/novel_app_replies_assets で管理する）
+# - static/audio/ は配信用の音源、BGM/ と SE/ は配布元から入手した元音源
+# - 開発で音源を使うときは、音源用リポジトリから同じ場所へコピーする（docs/development.md を参照）
+# - 注意：.gitignore は、まだGitで追跡していないファイルにしか効かない
+#   すでに追跡しているファイルは、ここに書いても除外されないので、
+#   Publicリポジトリへ移す前に、次のコマンドで「追跡済みで除外対象のファイル」が0件であることを確認する
+#     git ls-files -ci --exclude-standard
+# - 先頭の / は「リポジトリ直下だけ」という意味。macOS は大文字と小文字を区別しないため、
+#   / を付けないと static/audio/bgm/ や static/audio/se/ など、別の階層の同名フォルダにも当たってしまう
+/static/audio/
+/BGM/
+/SE/

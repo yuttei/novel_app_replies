@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
+    <meta
+      name="description"
+      content="ノベルゲーム『青春再演劇場 リプライズ』の本編"
+    >
+    <title>青春再演劇場 リプライズ</title>
+    <link
+      rel="icon"
+      href="./images/icons/favicon.ico"
+      sizes="any"
+    >
+    <link
+      rel="icon"
+      type="image/png"
+      href="./images/icons/favicon-32x32.png"
+      sizes="32x32"
+    >
+    <link
+      rel="icon"
+      type="image/png"
+      href="./images/icons/site-icon-512.png"
+      sizes="512x512"
+    >
+    <link
+      rel="apple-touch-icon"
+      href="./images/icons/apple-touch-icon-180.png"
+      sizes="180x180"
+    >
+    <link
+      rel="stylesheet"
+      href="./css/common.css"
+    >
+    <link
+      rel="stylesheet"
+      href="./css/game.css"
+    >
+    <script
+      type="module"
+      src="/src/ts/game.ts"
+    ></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section
+        id="game-stage"
+        class="game-stage"
+        aria-label="青春再演劇場 リプライズ 本編"
+        data-scenario-url="./data/scenario.json"
+        data-background-base="./images/background"
+        data-character-base="./images/character/chroko"
+        data-audio-base="./audio"
+      >
+        <!--
+          背景とクロコを同じカメラの中に置きます。
+          この親要素を動かすことで、ズームや揺れが両方へ同時に反映されます。
+        -->
+        <div id="scene-camera" class="scene-camera" aria-hidden="true">
+          <!-- 2枚の共通背景を交互に使い、追加した画像も同じ方法で切り替えます。 -->
+          <div
+            id="background-primary"
+            class="scene-background is-active"
+          ></div>
+          <div
+            id="background-secondary"
+            class="scene-background"
+          ></div>
+          <div class="scene-shade"></div>
+          <!-- 泡SEと同時に、目立たない小さな泡を少しだけ上昇させます。 -->
+          <div id="transition-bubbles" class="transition-bubbles">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <!--
+            新しい表情を後ろへ先に置き、古い表情だけを前面から消します。
+            そのため、新しい表情が途中で半透明になりません。
+          -->
+          <div
+            id="character-layer"
+            class="character-layer"
+            data-sprite-base="./images/character/chroko"
+            hidden
+          >
+            <img
+              id="character-sprite-primary"
+              class="character-sprite is-front"
+              src="./images/character/chroko/chroko_default.png"
+              alt=""
+            >
+            <img
+              id="character-sprite-secondary"
+              class="character-sprite is-hidden"
+              src="./images/character/chroko/chroko_default.png"
+              alt=""
+            >
+          </div>
+        </div>
+
+        <!-- 本編のどの場面からでも、確認して開始画面へ戻れます。 -->
+        <button
+          id="title-button"
+          class="title-button"
+          type="button"
+          data-title-url="./"
+        >
+          タイトルへ
+        </button>
+
+        <!-- 台詞と地の文は、どちらも画面下の同じボックスに表示します。 -->
+        <div id="dialog-box" class="dialog-box">
+          <p id="speaker-name" class="speaker-name" hidden></p>
+          <!-- 逐次表示を読み上げソフトが1文字ずつ読まないようにします。 -->
+          <p id="dialog-text" class="dialog-text" aria-hidden="true"></p>
+          <span id="next-mark" class="next-mark" aria-hidden="true" hidden></span>
+        </div>
+
+        <!--
+          主人公の台詞は選択肢風の1行ボックスで表示します。
+          長い台詞はTypeScript側で最大2つのボックスに分けます。
+        -->
+        <div
+          id="protagonist-dialog"
+          class="protagonist-dialog"
+          role="group"
+          aria-label="主人公の台詞"
+          hidden
+        >
+          <div id="protagonist-lines" class="protagonist-lines"></div>
+        </div>
+
+        <!-- 画面の表示形式に関わらず、完了した台詞をまとめて読み上げます。 -->
+        <p
+          id="dialog-announcement"
+          class="visually-hidden"
+          aria-live="polite"
+        ></p>
+
+        <!-- 曲目と第3部の区切りで共用し、TypeScriptで内容を切り替えます。 -->
+        <div id="song-card" class="song-card" aria-live="polite" hidden>
+          <p id="song-number" class="song-number">1曲目</p>
+          <h1 id="song-title" class="song-title">基礎練・ダイジェスト</h1>
+          <span class="song-ornament" aria-hidden="true"></span>
+        </div>
+
+        <!-- 最後の台詞を読み終えた後、作品名とENDを静かに表示します。 -->
+        <div id="ending-card" class="ending-card" aria-live="polite" hidden>
+          <p class="ending-card__title">青春再演劇場 リプライズ</p>
+          <p class="ending-card__mark">END</p>
+        </div>
+
+        <!-- ENDでは画面全体を押せます。決定音は鳴らさず、静かにタイトルへ戻ります。 -->
+        <button
+          id="ending-button"
+          class="ending-button"
+          type="button"
+          hidden
+          disabled
+        >
+          <span class="ending-button__prompt">tap to end</span>
+        </button>
+
+        <!-- 2曲目の前に画面全体を覆い、黒画面の裏で背景を交換します。 -->
+        <div
+          id="scene-transition-curtain"
+          class="scene-transition-curtain"
+          aria-hidden="true"
+          hidden
+        ></div>
+
+        <!-- シナリオ設定に問題がある場合、真っ黒な画面のままにせず原因を表示します。 -->
+        <div id="game-error" class="game-error" role="alert" hidden>
+          <div class="game-error__panel">
+            <h2>ゲームを開始できませんでした</h2>
+            <p id="game-error-message"></p>
+          </div>
+        </div>
+
+        <!--
+          透明なボタンを画面全体に重ねることで、タップ・クリック・Enter・Spaceの
+          どれでも同じように物語を進められます。
+        -->
+        <button
+          id="advance-button"
+          class="advance-button"
+          type="button"
+          disabled
+        >
+          <span id="advance-label" class="visually-hidden">物語を次へ進める</span>
+        </button>
+
+        <!-- タイトルへ戻る前に、現在の進行が失われることを確認します。 -->
+        <div
+          id="return-dialog"
+          class="return-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="return-dialog-title"
+          hidden
+        >
+          <div class="return-dialog__panel">
+            <h2 id="return-dialog-title">タイトルに戻りますか？</h2>
+            <p>現在の進行は失われます。</p>
+            <div class="return-dialog__actions">
+              <button id="cancel-return-button" type="button">キャンセル</button>
+              <button id="confirm-return-button" type="button">タイトルに戻る</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="opening-curtain" aria-hidden="true"></div>
+      </section>
+    </main>
+  </body>
+</html>

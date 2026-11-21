@@ -1,0 +1,22 @@
+{
+  "name": "novel-app-replies",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5001",
+    "dev:lan": "vite --host 0.0.0.0 --port 5001",
+    "build": "vite build",
+    "preview": "vite preview --port 5001",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "compare:script": "node scripts/compare-script.ts",
+    "test:unit": "npm run build && node --test tests/ts/*.test.ts",
+    "test:e2e": "npm run build && playwright test",
+    "test": "npm run typecheck && npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.0",
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  }
+}

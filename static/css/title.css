@@ -1,0 +1,554 @@
+/* 色や大きさを最初にまとめておくと、あとからデザインを調整しやすくなります。 */
+:root {
+  color-scheme: dark;
+  --page-black: #050504;
+  --text-ivory: #f7efd9;
+  --accent-gold: #d6b56f;
+  --accent-gold-bright: #f0d99a;
+  --page-text: var(--text-ivory);
+  --stage-background: #18130e;
+  --stage-shadow: 0 0 3rem rgb(0 0 0 / 65%);
+}
+
+.game-stage {
+  cursor: pointer;
+}
+
+.game-stage.is-starting {
+  cursor: wait;
+}
+
+.stage-background,
+.sunset-light,
+.stage-tint,
+.sunset-dust,
+.start-transition {
+  position: absolute;
+}
+
+/* 開始ボタンを押した後、次の画面へ移るまでを自然につなぐ暗転です。 */
+.start-transition {
+  z-index: 10;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1800ms ease-in;
+}
+
+.game-stage.is-starting .start-transition {
+  opacity: 1;
+}
+
+/*
+  自動再生が拒否された場合でも見つけやすいように、音声ボタンを左上へ固定します。
+  暗転用の黒い層より下に置くため、ゲーム開始時には自然に隠れます。
+*/
+.title-audio-button {
+  appearance: none;
+  position: absolute;
+  z-index: 8;
+  top: 1.25cqw;
+  left: 1.25cqw;
+  display: grid;
+  width: 3.75cqw;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0.0625cqw solid rgb(240 217 154 / 48%);
+  border-radius: 50%;
+  background: rgb(3 5 7 / 58%);
+  box-shadow: 0 0.3cqw 1cqw rgb(0 0 0 / 32%);
+  color: var(--text-ivory);
+  cursor: pointer;
+  place-items: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.title-audio-button svg {
+  width: 2cqw;
+  height: 2cqw;
+  overflow: visible;
+}
+
+.title-audio-button path {
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.title-audio-button__speaker {
+  fill: currentcolor !important;
+  stroke: none !important;
+}
+
+/* 停止中は斜線、再生中は音の波だけを表示します。 */
+.title-audio-button__wave {
+  display: none;
+}
+
+.title-audio-button.is-playing .title-audio-button__wave {
+  display: initial;
+}
+
+.title-audio-button.is-playing .title-audio-button__muted {
+  display: none;
+}
+
+.title-audio-button:focus-visible {
+  outline: 0.125cqw solid var(--accent-gold-bright);
+  outline-offset: 0.18cqw;
+}
+
+.title-audio-button:disabled {
+  cursor: wait;
+}
+
+.stage-background {
+  z-index: -4;
+  inset: 0;
+  background-image: url("../images/background/music_room.png");
+  background-position: center;
+  background-size: cover;
+  animation: background-reveal 800ms ease-out both;
+}
+
+/*
+  夕焼けの光だけを独立した層にして、右側の窓から室内へ差し込むように見せます。
+  背景画像そのものは動かさないため、画面酔いを起こしにくい演出です。
+*/
+.sunset-light {
+  z-index: -2;
+  inset: -16%;
+  background:
+    radial-gradient(
+      ellipse at 80% 32%,
+      rgb(255 239 194 / 58%) 0%,
+      rgb(255 190 101 / 38%) 18%,
+      rgb(232 116 42 / 17%) 38%,
+      transparent 60%
+    ),
+    linear-gradient(
+      112deg,
+      transparent 38%,
+      rgb(255 218 157 / 5%) 44%,
+      rgb(255 205 128 / 20%) 50%,
+      rgb(255 177 91 / 8%) 56%,
+      transparent 64%
+    );
+  filter: blur(0.18cqw);
+  mix-blend-mode: screen;
+  opacity: 0.82;
+  transform-origin: 80% 32%;
+  /* 左から右、右から左までの一往復を8秒で繰り返します。 */
+  animation: sunset-drift 8s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+/* 暖色と周辺の暗さを重ね、元画像を夕方らしい雰囲気に整えます。 */
+.stage-tint {
+  z-index: -3;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 70% 42%,
+      rgb(255 193 103 / 8%) 0%,
+      rgb(55 28 9 / 20%) 47%,
+      rgb(3 3 2 / 74%) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(24 12 5 / 30%) 0%,
+      rgb(13 8 4 / 20%) 45%,
+      rgb(5 4 3 / 70%) 100%
+    );
+}
+
+/*
+  微粒子は光が差す右側を中心に表示し、暗い場所や画面端では見えなくします。
+  mask-imageと-webkit-mask-imageを併記し、Safariでも同じ範囲に収めます。
+*/
+.sunset-dust {
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(
+    ellipse 56% 82% at 74% 52%,
+    #000 0%,
+    #000 46%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(
+    ellipse 56% 82% at 74% 52%,
+    #000 0%,
+    #000 46%,
+    transparent 78%
+  );
+}
+
+.sunset-dust::before,
+.sunset-dust::after {
+  position: absolute;
+  inset: -12%;
+  content: "";
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+/* 手前に見える、少し大きく明るい8個の粒です。 */
+.sunset-dust::before {
+  background:
+    radial-gradient(circle at 48% 76%, rgb(255 240 197 / 80%) 0 0.09375cqw, transparent 0.15cqw),
+    radial-gradient(circle at 58% 59%, rgb(255 224 160 / 70%) 0 0.0625cqw, transparent 0.125cqw),
+    radial-gradient(circle at 64% 83%, rgb(255 236 188 / 75%) 0 0.1125cqw, transparent 0.175cqw),
+    radial-gradient(circle at 71% 46%, rgb(255 219 146 / 68%) 0 0.075cqw, transparent 0.1375cqw),
+    radial-gradient(circle at 77% 69%, rgb(255 241 202 / 82%) 0 0.1cqw, transparent 0.16875cqw),
+    radial-gradient(circle at 82% 37%, rgb(255 226 165 / 66%) 0 0.0625cqw, transparent 0.125cqw),
+    radial-gradient(circle at 89% 57%, rgb(255 238 192 / 76%) 0 0.0875cqw, transparent 0.15cqw),
+    radial-gradient(circle at 93% 79%, rgb(255 218 139 / 62%) 0 0.06875cqw, transparent 0.125cqw);
+  filter: drop-shadow(0 0 0.22cqw rgb(255 198 107 / 70%));
+  animation: dust-drift-near 10s linear -3s infinite;
+}
+
+/* 奥に見える、小さく淡い7個の粒です。 */
+.sunset-dust::after {
+  background:
+    radial-gradient(circle at 51% 52%, rgb(255 231 179 / 55%) 0 0.04375cqw, transparent 0.09375cqw),
+    radial-gradient(circle at 61% 71%, rgb(255 218 148 / 48%) 0 0.05cqw, transparent 0.1cqw),
+    radial-gradient(circle at 68% 34%, rgb(255 239 197 / 58%) 0 0.0375cqw, transparent 0.0875cqw),
+    radial-gradient(circle at 74% 87%, rgb(255 225 162 / 52%) 0 0.05625cqw, transparent 0.10625cqw),
+    radial-gradient(circle at 80% 54%, rgb(255 236 190 / 56%) 0 0.04375cqw, transparent 0.09375cqw),
+    radial-gradient(circle at 86% 73%, rgb(255 215 139 / 46%) 0 0.05cqw, transparent 0.1cqw),
+    radial-gradient(circle at 91% 42%, rgb(255 234 184 / 54%) 0 0.0375cqw, transparent 0.0875cqw);
+  filter: drop-shadow(0 0 0.16cqw rgb(255 192 94 / 55%));
+  animation: dust-drift-far 14s linear -9s infinite;
+}
+
+.title-area {
+  position: absolute;
+  /* タイトル全体の中心を、画面中央より少し上へ置きます。 */
+  top: 42%;
+  right: 2%;
+  left: 2%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+.game-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  font-family:
+    "Yu Mincho",
+    "Hiragino Mincho ProN",
+    "Hiragino Mincho Pro",
+    serif;
+  font-weight: 600;
+  line-height: 1.05;
+  text-shadow:
+    0 0.08em 0.14em rgb(0 0 0 / 85%),
+    0 0 0.55em rgb(0 0 0 / 72%);
+  animation: title-reveal 650ms 200ms ease-out both;
+}
+
+.game-title__main {
+  font-size: 9cqw;
+  letter-spacing: 0.12em;
+  text-indent: 0.12em;
+  white-space: nowrap;
+}
+
+.game-title__sub {
+  margin-top: 0.12em;
+  color: var(--accent-gold-bright);
+  font-size: 4.3875cqw;
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  white-space: nowrap;
+}
+
+/* タイトル下の飾り線は画像を増やさず、CSSだけで舞台らしさを足します。 */
+.title-ornament {
+  display: block;
+  width: 25.875cqw;
+  height: 0.0625cqw;
+  margin-top: 1.0125cqw;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-gold) 25%,
+    var(--accent-gold-bright) 50%,
+    var(--accent-gold) 75%,
+    transparent
+  );
+  box-shadow: 0 0 0.45cqw rgb(214 181 111 / 45%);
+  animation: title-reveal 650ms 350ms ease-out both;
+}
+
+.start-button {
+  appearance: none;
+  position: absolute;
+  right: 50%;
+  bottom: 14%;
+  min-width: 20cqw;
+  min-height: 3cqw;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-ivory);
+  font: inherit;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.45cqw;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-shadow:
+    0 0.1em 0.24em rgb(0 0 0 / 88%),
+    0 0 0.75em rgb(240 217 154 / 42%);
+  cursor: pointer;
+  touch-action: manipulation;
+  transform: translateX(50%);
+  animation: tap-pulse 3.8s ease-in-out infinite;
+  will-change: opacity;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* タップした範囲へスマートフォン標準の黒い色を重ねないようにします。 */
+.start-button:active {
+  background: transparent;
+}
+
+/* 遷移開始後は、連続でボタンを押せないことを見た目でも示します。 */
+.start-button:disabled {
+  cursor: wait;
+}
+
+/* 今後ボタンを動かすときにも、キーボードで位置を確認できるようにします。 */
+.start-button:focus-visible {
+  outline: 0.0625cqw solid var(--accent-gold-bright);
+  outline-offset: 0.35cqw;
+}
+
+/* クレジットは演出を邪魔しない右下に置き、押してもゲームを開始しません。 */
+.credits-button {
+  appearance: none;
+  position: absolute;
+  z-index: 8;
+  right: 1.5cqw;
+  bottom: 1.25cqw;
+  padding: 0.35em 0.65em;
+  border: 0;
+  background: rgb(3 5 7 / 52%);
+  color: rgb(247 239 217 / 82%);
+  font: inherit;
+  font-size: 1.05cqw;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.credits-button:focus-visible,
+.credits-dialog__close:focus-visible,
+.credits-dialog a:focus-visible {
+  outline: 0.125cqw solid var(--accent-gold-bright);
+  outline-offset: 0.18cqw;
+}
+
+.credits-button:disabled {
+  cursor: wait;
+}
+
+/* dialogを使い、キーボードのフォーカスが背後の開始画面へ移らないようにします。 */
+.credits-dialog {
+  width: 68cqw;
+  max-height: 48cqw;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 0.0625cqw solid rgb(240 217 154 / 64%);
+  border-radius: 0.5cqw;
+  background: rgb(10 9 8 / 97%);
+  box-shadow: 0 1cqw 3cqw rgb(0 0 0 / 75%);
+  color: var(--text-ivory);
+  font-size: 1.35cqw;
+}
+
+.credits-dialog::backdrop {
+  background: rgb(0 0 0 / 72%);
+}
+
+.credits-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25cqw 1.5cqw 0.8cqw;
+  border-bottom: 0.0625cqw solid rgb(214 181 111 / 38%);
+}
+
+.credits-dialog__header h2,
+.credits-dialog__content h3,
+.credits-dialog__content p,
+.credits-dialog__content ul {
+  margin-top: 0;
+}
+
+.credits-dialog__header h2 {
+  margin-bottom: 0;
+  color: var(--accent-gold-bright);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: 2cqw;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+
+.credits-dialog__close {
+  appearance: none;
+  width: 3cqw;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-ivory);
+  font: inherit;
+  font-size: 2.4cqw;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.credits-dialog__content {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 2cqw;
+  max-height: 38cqw;
+  padding: 1.15cqw 1.5cqw 1.5cqw;
+  overflow-y: auto;
+  line-height: 1.55;
+}
+
+.credits-dialog__content h3 {
+  margin-bottom: 0.55cqw;
+  color: var(--accent-gold);
+  font-size: 1.45cqw;
+}
+
+.credits-dialog__content ul {
+  margin-bottom: 0.65cqw;
+  padding-left: 1.8em;
+}
+
+.credits-dialog__content p {
+  margin-bottom: 0.7cqw;
+}
+
+/* 利用上の注意は2列のクレジットの下に、横幅いっぱいで区切り線を付けて表示します。 */
+.credits-dialog__notice {
+  grid-column: 1 / -1;
+  padding-top: 1cqw;
+  border-top: 0.0625cqw solid rgb(214 181 111 / 38%);
+}
+
+.credits-dialog__notice p {
+  margin-bottom: 0;
+}
+
+.credits-dialog a {
+  color: var(--accent-gold-bright);
+  text-underline-offset: 0.18em;
+}
+
+@keyframes background-reveal {
+  from {
+    opacity: 0;
+    filter: brightness(55%) saturate(78%);
+    transform: scale(1.025);
+  }
+
+  to {
+    opacity: 1;
+    filter: brightness(82%) saturate(88%) sepia(8%);
+    transform: scale(1);
+  }
+}
+
+@keyframes title-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.45cqw);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 夕焼けの明るい部分を往復させ、室内の光がゆっくり移るように見せます。 */
+@keyframes sunset-drift {
+  0%,
+  100% {
+    opacity: 0.64;
+    transform: translate3d(-6%, 2%, 0) scale(1.03) rotate(-1deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate3d(6%, -1.5%, 0) scale(1.09) rotate(1deg);
+  }
+}
+
+/* 手前の粒は少し大きく移動し、終端で透明にして繰り返しの継ぎ目を隠します。 */
+@keyframes dust-drift-near {
+  0% {
+    opacity: 0;
+    transform: translate3d(-2%, 9%, 0);
+  }
+
+  18%,
+  78% {
+    opacity: 0.68;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(3%, -11%, 0);
+  }
+}
+
+/* 奥の粒は手前よりゆっくり、小さな幅で漂わせて奥行きを作ります。 */
+@keyframes dust-drift-far {
+  0% {
+    opacity: 0;
+    transform: translate3d(2%, 7%, 0) scale(0.9);
+  }
+
+  20%,
+  76% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(-1%, -7%, 0) scale(1.02);
+  }
+}
+
+/* 文字だけをゆっくり明滅させ、画面をタップできることを静かに示します。 */
+@keyframes tap-pulse {
+  0%,
+  100% {
+    opacity: 0.08;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
