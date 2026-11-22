@@ -118,27 +118,33 @@ Cloudflare アカウントの作成、API トークンの作成、Secrets の登
 
 | 開いたパス | 応答 |
 | --- | --- |
-| `/healthz` | 200（本文なし） |
-| それ以外のすべてのパス | 301 で、`https://novel-app-replies.pages.dev` の同じパス（クエリ文字列も含む）へ転送<br>例：`/game?x=1` → `https://novel-app-replies.pages.dev/game?x=1` |
+| ちょうど `/healthz`（クエリ文字列なし） | 200（本文なし） |
+| `/` で始まる、それ以外のすべてのパス | 301 で、`https://novel-app-replies.pages.dev` の同じパス（クエリ文字列も含む）へ転送<br>例：`/game?x=1` → `https://novel-app-replies.pages.dev/game?x=1`<br>例：`/healthz?x=1` → `https://novel-app-replies.pages.dev/healthz?x=1` |
+| `/` で始まらない要求（例：`@example.com`） | 301 で、公開版のトップ `https://novel-app-replies.pages.dev/` へ転送 |
 
-- 転送先のホスト名は `novel-app-replies.pages.dev` に固定しており、開いたパスをその後ろにつなげるだけ
+- 転送先のホスト名は `novel-app-replies.pages.dev` に固定しており、`/` で始まるパスだけをその後ろにつなげる。`/` で始まらない要求をそのままつなげると、`https://novel-app-replies.pages.dev@example.com` のように別のホストを指す URL になるため、トップ `/` へ転送する
+- 旧 URL では、`/` で始まらない要求は Render の前段で 400 になり、起動コマンドのサーバーまで届かなかった（下の確認結果を参照）。上の `/` へ転送する処理は、前段がこの要求を通した場合の備えである
 - 旧版の音源のパス（`/static/audio/...`）も転送されるだけで、Render からはファイルを何も配信しない
-- 応答するのは GET と HEAD のリクエストだけ。POST などほかの方法のリクエストには、`http.server` の既定どおり 501 を返す
+- 応答するのは GET と HEAD のリクエストだけ。POST などほかの方法のリクエストには、`http.server` の既定どおり 501 を返す（同じ起動コマンドを手元で動かして確認。旧 URL へは送っていない）
 
-2026-11-22 の確認結果は次のとおりである。
+旧 URL での確認結果は次のとおりである（2026-11-22、新しい起動コマンドのデプロイ後に確認）。
 
-| 開いたパス | 旧 URL の応答 | 転送をたどった先 |
-| --- | --- | --- |
-| `/` | `https://novel-app-replies.pages.dev/` へ 301 | 200 |
-| `/game` | `https://novel-app-replies.pages.dev/game` へ 301 | 200 |
-| `/healthz` | 200 | ― |
+| 開いたパス | 旧 URL の応答 |
+| --- | --- |
+| `/` | `https://novel-app-replies.pages.dev/` へ 301 |
+| `/game` | `https://novel-app-replies.pages.dev/game` へ 301 |
+| `/game?x=1` | `https://novel-app-replies.pages.dev/game?x=1` へ 301 |
+| `/healthz` | 200 |
+| `@example.com`（`/` で始まらない要求） | Render の前段で 400 Bad Request |
+
+- 転送をたどった先（pages.dev）が 200 になることは、新しい起動コマンドに替える前の確認（2026-11-22）で確かめた
 
 ### 起動コマンド
 
 Render の起動コマンドに設定している全文である。
 
 ```sh
-python3 -c "import os,http.server as s;T='https://novel-app-replies.pages.dev';f=lambda r:(r.send_response(200 if r.path=='/healthz' else 301),r.send_header('Location',T+r.path),r.send_header('Content-Length','0'),r.end_headers());H=type('H',(s.BaseHTTPRequestHandler,),{'do_GET':f,'do_HEAD':f});s.ThreadingHTTPServer(('0.0.0.0',int(os.environ.get('PORT','10000'))),H).serve_forever()"
+python3 -c "import os,http.server as s;T='https://novel-app-replies.pages.dev';f=lambda r:(r.send_response(200 if r.path=='/healthz' else 301),r.send_header('Location',T+(r.path if r.path.startswith('/') else '/')),r.send_header('Content-Length','0'),r.end_headers());H=type('H',(s.BaseHTTPRequestHandler,),{'do_GET':f,'do_HEAD':f});s.ThreadingHTTPServer(('0.0.0.0',int(os.environ.get('PORT','10000'))),H).serve_forever()"
 ```
 
 `python3 -c` は、続く文字列を Python のプログラムとして実行する。文字列の中身は、`;` で区切った次の処理である。
@@ -147,18 +153,18 @@ python3 -c "import os,http.server as s;T='https://novel-app-replies.pages.dev';f
 | --- | --- |
 | `import os,http.server as s` | 環境変数を読むための `os` と、簡単な Web サーバーを作る標準ライブラリ `http.server`（以下 `s`）を読み込む |
 | `T='https://novel-app-replies.pages.dev'` | 転送先（固定）を `T` に入れる |
-| `f=lambda r:(...)` | リクエストを1件受けたときの処理 `f` を作る。`r` は受けたリクエストで、次の順に応答する<br>1. パス（`r.path`）が `/healthz` なら 200、それ以外なら 301 の応答番号を送る<br>2. 転送先を示す `Location` ヘッダーに、`T` と `r.path`（クエリ文字列を含む）をつなげた URL を入れる（`/healthz` の 200 にも付くが、200 ではブラウザは転送しない）<br>3. 本文の長さを 0 と送り、ヘッダーを送り終える |
+| `f=lambda r:(...)` | リクエストを1件受けたときの処理 `f` を作る。`r` は受けたリクエストで、次の順に応答する<br>1. パス（`r.path`、クエリ文字列を含む）がちょうど `/healthz` なら 200、それ以外なら 301 の応答番号を送る（`/healthz?x=1` は一致しないので 301）<br>2. `r.path.startswith('/')` で、パスが `/` で始まるかを確かめる。始まるなら `r.path`、始まらないなら `/` を `T` の後ろにつなげ、転送先を示す `Location` ヘッダーに入れる（`/healthz` の 200 にも付くが、200 ではブラウザは転送しない）<br>3. 本文の長さを 0 と送り、ヘッダーを送り終える |
 | `H=type('H',(s.BaseHTTPRequestHandler,),{'do_GET':f,'do_HEAD':f})` | 標準の処理役 `BaseHTTPRequestHandler` をもとに、GET と HEAD のリクエストで `f` を呼ぶ処理役 `H` を作る。`class` 文は `;` の後に続けて書けないため、`type` で作っている |
 | `s.ThreadingHTTPServer((...),H).serve_forever()` | すべての接続元から受け付ける `0.0.0.0` と、Render が環境変数 `PORT` で指定する番号（指定がなければ 10000）でサーバーを起動し、止めるまで待ち受け続ける。`ThreadingHTTPServer` は、複数のリクエストを並行して処理するサーバーである |
 
 ### 注意点
 
-- 無料プランは、しばらくアクセスがないと休止する。休止中は、旧 URL の最初の転送に最大50秒ほどかかることがある
+- 無料プランは、15分アクセスがないと休止する。休止中に旧 URL を開くと、すぐには転送されず、復帰を待つあいだ Render の読み込み中の画面が表示される。復帰には1分ほどかかる（[Render の文書](https://render.com/docs/free)による。実際にかかる時間は未確認）
 - 新しく案内するときは、旧 URL ではなく公開版の URL（https://novel-app-replies.pages.dev）を使う
 
 ### 転送をやめる・再開する
 
-- やめる：Render の画面でサービスを停止（Suspend）する。旧 URL は「Service Suspended」（503）になる
+- やめる：Render の画面でサービスを停止（Suspend）する。旧 URL は「Service Suspended」（503）になる（2026-11-22 に実際に停止し、`curl` で 503 と、本文の「Service Suspended」「This service has been suspended by its owner.」を確認）
 - 再開する：Render の画面で Resume を実行する
 
 ## Public リポジトリのチェックリスト
