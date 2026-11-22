@@ -7,7 +7,7 @@
 | 段階 | 状態 | 内容 |
 | --- | --- | --- |
 | 1. ドキュメント・構成整理 | 実施済み | `README.md`、`CREDITS.md`、`LICENSE`、`AGENTS.md`、`docs/` の整備、非公開企画資料の `private/docs/` 退避 |
-| 2. TypeScript / Vite 化 | 実施済み | Python / Flask / Render 依存を廃止し、Vite（`npm run build`）で `dist/` を静的出力する構成へ移行 |
+| 2. TypeScript / Vite 化 | 実施済み | Python / Flask / Render 依存を廃止し、Vite（`npm run build`）で `dist/` を静的出力する構成へ移行（旧 URL の扱いは[旧公開先 Render からの転送](#旧公開先-render-からの転送)を参照） |
 | 3. クレジット表記追記・音源分離テスト対応 | 実施済み | タイトル画面クレジットへの音源抽出禁止文言追記、音源未配置時に音源の確認だけをスキップする単体テスト（`REQUIRE_AUDIO_ASSETS=1` のときは配信用音源 `static/audio/` が欠けていればスキップせず失敗させる。元音源 `BGM/` は必須にしない） |
 | 4. GitHub リポジトリ分離 | 実施済み | 旧リポジトリの `yuttei/novel_app_replies_archive`（Private）への改名・保存、履歴を作り直した `yuttei/novel_app_replies`（Public）の作成、音源と企画資料の `yuttei/novel_app_replies_assets`（Private）への移動（構成は[リポジトリ構成](#リポジトリ構成)を参照） |
 | 5. Cloudflare Pages 連携 | 実施済み（2026-11-22） | 音源用リポジトリ（`yuttei/novel_app_replies_assets`）の Secrets（`CLOUDFLARE_API_TOKEN`・`CLOUDFLARE_ACCOUNT_ID`）を登録し、手動実行したデプロイ用ワークフローで初回デプロイが成功した。Cloudflare Pages のプロジェクト `novel-app-replies` は、ワークフローの「なければ作る」手順で自動作成された。公開 URL は https://novel-app-replies.pages.dev 。公開版で確認済みの項目と未確認の項目は、[公開後の動作確認](#public-リポジトリのチェックリスト)を参照 |
@@ -20,7 +20,7 @@
 | --- | --- | --- | --- |
 | `yuttei/novel_app_replies` | **Public** | ソースコード（`index.html`, `game.html`, `vite.config.ts`, `src/ts/`, `static/css/`, `static/data/`, `scripts/`, `tests/`）、文書（`README.md`, `CREDITS.md`, `AGENTS.md`, `LICENSE`, `docs/`）、画像（`static/images/`, `img_background/`, `img_character/`） | 開発の本体。音源（`static/audio/`, `BGM/`, `SE/`）と企画資料（`private/`）は含めず、`.gitignore` で除外する |
 | `yuttei/novel_app_replies_assets` | **Private** | 配信用音源 `static/audio/`、元音源 `BGM/`・`SE/`、企画資料 `private/docs/`（コード側と同じパスで置く） | 音源と企画資料の保管。Cloudflare Pages へデプロイする GitHub Actions と、その認証情報（Secrets）もここに置く |
-| `yuttei/novel_app_replies_archive` | **Private**（公開しない） | 旧 `yuttei/novel_app_replies` の全履歴（本名・端末名・元音源を含む） | 古い履歴の保存専用。改名して残したもので、新しい開発には使わない |
+| `yuttei/novel_app_replies_archive` | **Private**（公開しない） | 旧 `yuttei/novel_app_replies` の全履歴（本名・端末名・元音源を含む） | 古い履歴の保存専用。改名して残したもので、新しい開発には使わない。Render の旧サービスがこのリポジトリに接続されたままだが、自動デプロイは Off にしている（[旧公開先 Render からの転送](#旧公開先-render-からの転送)を参照） |
 
 ## 公開アーキテクチャの全体像
 
@@ -32,6 +32,7 @@
 | 外部音源・非公開企画資料 | `yuttei/novel_app_replies_assets` | **Private** | 配信用音源、元音源、企画資料を管理する |
 | ビルド・デプロイ実行 | `yuttei/novel_app_replies_assets` の GitHub Actions | **Private** | Public のコードと Private の `static/audio/` を組み合わせ、テストとビルドを通した `dist/` を Cloudflare Pages へ配信する |
 | ホスティング先 | Cloudflare Pages（無料枠）のプロジェクト `novel-app-replies` | 一般公開（Web ゲーム） | 静的ファイル（`dist/`）を HTTPS 配信する。公開 URL は https://novel-app-replies.pages.dev |
+| 旧 URL の転送 | Render の無料 Web Service `novel_app_replies` | 一般公開（転送のみ） | 旧公開先の URL（https://novel-app-replies.onrender.com）へのアクセスを、公開版の同じパスへ 301 で転送する。ゲームのファイルは配信しない（[旧公開先 Render からの転送](#旧公開先-render-からの転送)を参照） |
 
 ### GitHub Pages ではなく Cloudflare Pages を選ぶ理由
 
@@ -91,6 +92,80 @@ Cloudflare へのデプロイに使う認証情報は、音源用リポジトリ
 Cloudflare アカウントの作成、API トークンの作成、Secrets の登録は、ユーザーが自分で行う（2026-11-22 に設定済み）。初回設定の手順（アカウント作成、Account ID の確認、API トークンの作成、Secrets の登録、ワークフローの手動実行、公開 URL の確認）は、音源用リポジトリの `README.md` にまとめている。
 
 現在の API トークンは、権限を Cloudflare Pages の Edit だけ、対象をこのアカウントだけに絞っており、**2027-11-22 に失効する**。失効するとデプロイできなくなるため、その前にトークンを作り直し、Secret `CLOUDFLARE_API_TOKEN` を更新する（手順は音源用リポジトリの `README.md` の「現在の設定状況」を参照）。
+
+## 旧公開先 Render からの転送
+
+以前は、旧版（Python / Flask）を Render で公開し、その URL を人に教えて遊んでもらっていた。旧 URL を開いた人が新しい公開版へたどり着けるように、2026-11-22 に Render のサービスを「旧 URL へのアクセスを Cloudflare Pages の公開版へ転送するだけ」に変えた。
+
+### サービスの設定
+
+| 項目 | 設定 |
+| --- | --- |
+| サービスの種類 | Render の無料 Web Service（Python 3） |
+| サービス名 | `novel_app_replies` |
+| 旧 URL | https://novel-app-replies.onrender.com |
+| 接続しているリポジトリ | `yuttei/novel_app_replies_archive` の `main`（改名前の `yuttei/novel_app_replies` への接続が、改名に自動で追従したもの） |
+| ビルドコマンド | `echo` でビルドが不要な旨を表示するだけ（何もビルドしない） |
+| 起動コマンド | Python 標準ライブラリ `http.server` のワンライナー（全文と説明は[起動コマンド](#起動コマンド)を参照） |
+| Health Check Path | `/healthz` |
+| 自動デプロイ | Off |
+
+- 自動デプロイを Off にした理由：
+  - 段階2以降、旧リポジトリには Render 用の設定（`render.yaml`・`app.py`・`requirements.txt`）がない。そのため転送へ切り替える前は、自動デプロイが3回失敗し、4か月前の旧版が配信され続けていた
+  - Off にしたことで、`yuttei/novel_app_replies_archive` へ push してもデプロイは動かない
+
+### 転送の動作
+
+| 開いたパス | 応答 |
+| --- | --- |
+| ちょうど `/healthz`（クエリ文字列なし） | 200（本文なし） |
+| `/` で始まる、それ以外のすべてのパス | 301 で、`https://novel-app-replies.pages.dev` の同じパス（クエリ文字列も含む）へ転送<br>例：`/game?x=1` → `https://novel-app-replies.pages.dev/game?x=1`<br>例：`/healthz?x=1` → `https://novel-app-replies.pages.dev/healthz?x=1` |
+| `/` で始まらない要求（例：`@example.com`） | 301 で、公開版のトップ `https://novel-app-replies.pages.dev/` へ転送 |
+
+- 転送先のホスト名は `novel-app-replies.pages.dev` に固定しており、`/` で始まるパスだけをその後ろにつなげる。`/` で始まらない要求をそのままつなげると、`https://novel-app-replies.pages.dev@example.com` のように別のホストを指す URL になるため、トップ `/` へ転送する
+- 旧 URL では、`/` で始まらない要求は Render の前段で 400 になり、起動コマンドのサーバーまで届かなかった（下の確認結果を参照）。上の `/` へ転送する処理は、前段がこの要求を通した場合の備えである
+- 旧版の音源のパス（`/static/audio/...`）も転送されるだけで、Render からはファイルを何も配信しない
+- 応答するのは GET と HEAD のリクエストだけ。POST などほかの方法のリクエストには、`http.server` の既定どおり 501 を返す（同じ起動コマンドを手元で動かして確認。旧 URL へは送っていない）
+
+旧 URL での確認結果は次のとおりである（2026-11-22、新しい起動コマンドのデプロイ後に確認）。
+
+| 開いたパス | 旧 URL の応答 |
+| --- | --- |
+| `/` | `https://novel-app-replies.pages.dev/` へ 301 |
+| `/game` | `https://novel-app-replies.pages.dev/game` へ 301 |
+| `/game?x=1` | `https://novel-app-replies.pages.dev/game?x=1` へ 301 |
+| `/healthz` | 200 |
+| `@example.com`（`/` で始まらない要求） | Render の前段で 400 Bad Request |
+
+- 転送をたどった先（pages.dev）が 200 になることは、新しい起動コマンドに替える前の確認（2026-11-22）で確かめた
+
+### 起動コマンド
+
+Render の起動コマンドに設定している全文である。
+
+```sh
+python3 -c "import os,http.server as s;T='https://novel-app-replies.pages.dev';f=lambda r:(r.send_response(200 if r.path=='/healthz' else 301),r.send_header('Location',T+(r.path if r.path.startswith('/') else '/')),r.send_header('Content-Length','0'),r.end_headers());H=type('H',(s.BaseHTTPRequestHandler,),{'do_GET':f,'do_HEAD':f});s.ThreadingHTTPServer(('0.0.0.0',int(os.environ.get('PORT','10000'))),H).serve_forever()"
+```
+
+`python3 -c` は、続く文字列を Python のプログラムとして実行する。文字列の中身は、`;` で区切った次の処理である。
+
+| 部分 | していること |
+| --- | --- |
+| `import os,http.server as s` | 環境変数を読むための `os` と、簡単な Web サーバーを作る標準ライブラリ `http.server`（以下 `s`）を読み込む |
+| `T='https://novel-app-replies.pages.dev'` | 転送先（固定）を `T` に入れる |
+| `f=lambda r:(...)` | リクエストを1件受けたときの処理 `f` を作る。`r` は受けたリクエストで、次の順に応答する<br>1. パス（`r.path`、クエリ文字列を含む）がちょうど `/healthz` なら 200、それ以外なら 301 の応答番号を送る（`/healthz?x=1` は一致しないので 301）<br>2. `r.path.startswith('/')` で、パスが `/` で始まるかを確かめる。始まるなら `r.path`、始まらないなら `/` を `T` の後ろにつなげ、転送先を示す `Location` ヘッダーに入れる（`/healthz` の 200 にも付くが、200 ではブラウザは転送しない）<br>3. 本文の長さを 0 と送り、ヘッダーを送り終える |
+| `H=type('H',(s.BaseHTTPRequestHandler,),{'do_GET':f,'do_HEAD':f})` | 標準の処理役 `BaseHTTPRequestHandler` をもとに、GET と HEAD のリクエストで `f` を呼ぶ処理役 `H` を作る。`class` 文は `;` の後に続けて書けないため、`type` で作っている |
+| `s.ThreadingHTTPServer((...),H).serve_forever()` | すべての接続元から受け付ける `0.0.0.0` と、Render が環境変数 `PORT` で指定する番号（指定がなければ 10000）でサーバーを起動し、止めるまで待ち受け続ける。`ThreadingHTTPServer` は、複数のリクエストを並行して処理するサーバーである |
+
+### 注意点
+
+- 無料プランは、15分アクセスがないと休止する。休止中に旧 URL を開くと、すぐには転送されず、復帰を待つあいだ Render の読み込み中の画面が表示される。復帰には1分ほどかかる（[Render の文書](https://render.com/docs/free)による。実際にかかる時間は未確認）
+- 新しく案内するときは、旧 URL ではなく公開版の URL（https://novel-app-replies.pages.dev）を使う
+
+### 転送をやめる・再開する
+
+- やめる：Render の画面でサービスを停止（Suspend）する。旧 URL は「Service Suspended」（503）になる（2026-11-22 に実際に停止し、`curl` で 503 と、本文の「Service Suspended」「This service has been suspended by its owner.」を確認）
+- 再開する：Render の画面で Resume を実行する
 
 ## Public リポジトリのチェックリスト
 
