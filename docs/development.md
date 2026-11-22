@@ -99,7 +99,7 @@ ipconfig getifaddr en0
    rsync -a BGM/ ../novel_app_replies_assets/BGM/
    rsync -a SE/ ../novel_app_replies_assets/SE/
    ```
-4. 音源用リポジトリ側でコミットし、`main` へ反映する。Cloudflare の設定（[deployment.md](deployment.md#現在の移行ステータス) の段階5）が済んでからは、音源用リポジトリの `main` への push で公開版のデプロイが始まる（[deployment.md のデプロイフロー](deployment.md#デプロイフロー) を参照）
+4. 音源用リポジトリ側でコミットし、`main` へ反映する。Cloudflare の設定（[deployment.md](deployment.md#現在の移行ステータス) の段階5）は済んでいるため、音源用リポジトリの `main` への push で公開版のデプロイが始まる（[deployment.md のデプロイフロー](deployment.md#デプロイフロー) を参照）
 5. 音源を追加・削除・差し替えた場合は、コード側の `CREDITS.md` と `index.html` のクレジット表記も確認する
 
 `rsync -a` はコピー元にないファイルを削除しないため、音源を削除した場合は、音源用リポジトリ側でも同じファイルを削除する。

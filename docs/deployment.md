@@ -10,7 +10,7 @@
 | 2. TypeScript / Vite 化 | 実施済み | Python / Flask / Render 依存を廃止し、Vite（`npm run build`）で `dist/` を静的出力する構成へ移行 |
 | 3. クレジット表記追記・音源分離テスト対応 | 実施済み | タイトル画面クレジットへの音源抽出禁止文言追記、音源未配置時に音源の確認だけをスキップする単体テスト（`REQUIRE_AUDIO_ASSETS=1` のときは配信用音源 `static/audio/` が欠けていればスキップせず失敗させる。元音源 `BGM/` は必須にしない） |
 | 4. GitHub リポジトリ分離 | 実施済み | 旧リポジトリの `yuttei/novel_app_replies_archive`（Private）への改名・保存、履歴を作り直した `yuttei/novel_app_replies`（Public）の作成、音源と企画資料の `yuttei/novel_app_replies_assets`（Private）への移動（構成は[リポジトリ構成](#リポジトリ構成)を参照） |
-| 5. Cloudflare Pages 連携 | 未実施（Cloudflare アカウント作成・Secrets 登録待ち） | デプロイ用ワークフローは音源用リポジトリ（`yuttei/novel_app_replies_assets`）へ追加済み。残りは Cloudflare アカウントと API トークンの作成、音源用リポジトリへの Secrets 登録、音源用リポジトリの GitHub Actions からの初回デプロイ |
+| 5. Cloudflare Pages 連携 | 実施済み（2026-11-22） | 音源用リポジトリ（`yuttei/novel_app_replies_assets`）の Secrets（`CLOUDFLARE_API_TOKEN`・`CLOUDFLARE_ACCOUNT_ID`）を登録し、手動実行したデプロイ用ワークフローで初回デプロイが成功した。Cloudflare Pages のプロジェクト `novel-app-replies` は、ワークフローの「なければ作る」手順で自動作成された。公開 URL は https://novel-app-replies.pages.dev 。公開版で確認済みの項目と未確認の項目は、[公開後の動作確認](#public-リポジトリのチェックリスト)を参照 |
 
 ## リポジトリ構成
 
@@ -31,7 +31,7 @@
 | アプリ本体・文書・画像 | `yuttei/novel_app_replies` | **Public** | ゲームのコードと公開できる素材を管理する |
 | 外部音源・非公開企画資料 | `yuttei/novel_app_replies_assets` | **Private** | 配信用音源、元音源、企画資料を管理する |
 | ビルド・デプロイ実行 | `yuttei/novel_app_replies_assets` の GitHub Actions | **Private** | Public のコードと Private の `static/audio/` を組み合わせ、テストとビルドを通した `dist/` を Cloudflare Pages へ配信する |
-| ホスティング先 | Cloudflare Pages（無料枠）のプロジェクト `novel-app-replies` | 一般公開（Web ゲーム） | 静的ファイル（`dist/`）を HTTPS 配信する。公開 URL は https://novel-app-replies.pages.dev の予定（Cloudflare の設定後に確定する） |
+| ホスティング先 | Cloudflare Pages（無料枠）のプロジェクト `novel-app-replies` | 一般公開（Web ゲーム） | 静的ファイル（`dist/`）を HTTPS 配信する。公開 URL は https://novel-app-replies.pages.dev |
 
 ### GitHub Pages ではなく Cloudflare Pages を選ぶ理由
 
@@ -47,7 +47,7 @@
 
 ## デプロイフロー
 
-デプロイ用の GitHub Actions は `yuttei/novel_app_replies_assets` に置く。ワークフローは下のきっかけのたびに動き、ビルドとテストまでは Secrets がなくても進む。Cloudflare の設定（段階5）が終わるまでは、その後の Secrets の確認で失敗して止まり、公開はされない。
+デプロイ用の GitHub Actions は `yuttei/novel_app_replies_assets` に置く。ワークフローは下のきっかけのたびに動き、ビルドとテストを通したあと、Secrets を使って Cloudflare Pages へ公開する。Cloudflare の設定（段階5）は済んでいるため、現在はきっかけのたびに公開版が更新される。Secrets が登録されていない場合や API トークンが失効している場合は、公開の前で失敗して止まり、公開版は更新されない。
 
 ### デプロイのきっかけ
 
@@ -69,7 +69,14 @@ Public リポジトリへ push しただけでは公開版は更新されない�
 4. `REQUIRE_AUDIO_ASSETS=1 npm run test:unit` を実行する。このコマンドは内部で `npm run build` を実行して `dist/` を生成し、続けて単体テストを行う。配信用音源の配置漏れなどでテストが失敗した場合はデプロイを止める（元音源 `BGM/` は配置しないため、DOVA 元音源との比較テストはスキップされる）
 5. Cloudflare の操作に使う wrangler（Cloudflare の公式コマンド）を、Secrets を渡さない手順で先にインストールする
 6. 手順4で生成された `dist/` を、Cloudflare Pages のプロジェクト `novel-app-replies` へそのままデプロイする（ビルドを別に実行し直さない。プロジェクトがまだなければ、初回の実行で作成する）
-7. 公開 URL（https://novel-app-replies.pages.dev の予定）で、タイトル画面・本編・BGM/SE・クレジット表記を確認する
+7. 公開 URL（https://novel-app-replies.pages.dev）で、タイトル画面・本編・BGM/SE・クレジット表記を確認する
+
+### 公開版のページの URL
+
+| ページ | URL | 備考 |
+| --- | --- | --- |
+| タイトル画面 | https://novel-app-replies.pages.dev/ | ― |
+| 本編画面 | https://novel-app-replies.pages.dev/game | `/game.html` を開くと、Cloudflare Pages の仕様で `/game` へ 308 で転送される（転送先は 200）。タイトルの開始ボタンは `./game.html` へ移動するが、この転送を経て本編が表示される |
 
 ### 認証情報
 
@@ -80,11 +87,13 @@ Cloudflare へのデプロイに使う認証情報は、音源用リポジトリ
 | `CLOUDFLARE_API_TOKEN` | Cloudflare Pages へデプロイするための API トークン |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare のアカウント ID |
 
-Cloudflare アカウントの作成、API トークンの作成、Secrets の登録は、ユーザーが自分で行う。初回設定の手順（アカウント作成、Account ID の確認、API トークンの作成、Secrets の登録、ワークフローの手動実行、公開 URL の確認）は、音源用リポジトリの `README.md` にまとめている。
+Cloudflare アカウントの作成、API トークンの作成、Secrets の登録は、ユーザーが自分で行う（2026-11-22 に設定済み）。初回設定の手順（アカウント作成、Account ID の確認、API トークンの作成、Secrets の登録、ワークフローの手動実行、公開 URL の確認）は、音源用リポジトリの `README.md` にまとめている。
+
+現在の API トークンは、権限を Cloudflare Pages の Edit だけ、対象をこのアカウントだけに絞っており、**2027-11-22 に失効する**。失効するとデプロイできなくなるため、その前にトークンを作り直し、Secret `CLOUDFLARE_API_TOKEN` を更新する（手順は音源用リポジトリの `README.md` の「現在の設定状況」を参照）。
 
 ## Public リポジトリのチェックリスト
 
-Public リポジトリへ push する前と、初回公開の前に、次の項目を確認する（詳細基準は [assets-policy.md](assets-policy.md) を参照）。
+Public リポジトリへ push する前と、公開版を更新する前に、次の項目を確認する（詳細基準は [assets-policy.md](assets-policy.md) を参照）。
 
 - **Git 履歴**：
   - 旧リポジトリの履歴には本名・ローカル端末名・元音源ファイルが含まれるため、Public リポジトリへは引き継がない（旧履歴は `yuttei/novel_app_replies_archive` に Private のまま保存する）
@@ -95,8 +104,16 @@ Public リポジトリへ push する前と、初回公開の前に、次の項�
   - `git ls-files -ci --exclude-standard`（追跡済みで、`.gitignore` の除外対象にも当たるファイルの一覧）の結果が0件であること
 - **ゲーム内のクレジット・禁止事項表記**：
   - タイトル画面の音源クレジットダイアログに、OtoLogic（CC BY 4.0）表記およびリンクに加え、**ゲーム内からの音源ファイルの抽出・別用途利用を禁止する旨**が記載されていること
-- **公開後の動作確認**（段階5の初回デプロイ後に行う）：
+- **公開後の動作確認**（段階5の初回デプロイ後に行う。2026-11-22 時点の確認状況を各項目の下に記す）：
   - PC およびスマートフォンでタイトル画面（`/`）と本編画面（`game.html`）が 200 で表示されること
+    - 確認済み：PC のブラウザでタイトル画面の表示と、「tap to start」から本編へ移って最初の台詞が表示されること（`/game.html` は `/game` へ 308 で転送され、転送先は 200）。シナリオ・CSS・favicon の配信（200）
+    - 未確認：スマートフォン実機
   - タイトル BGM、メトロノーム、朝日 BGM、悠久の大地、星の名残り、各 SE が再生・フェードされること
+    - 確認済み：音源9件の配信（200）、タイトル BGM の読み込みと再生状態、本編で使う音源の読み込み
+    - 未確認：実際に音が聞こえること、フェード、タイトル BGM 以外の曲と SE の再生
   - ブラウザタブの favicon と音源クレジットダイアログが正常に表示されること
+    - 確認済み：クレジットの禁止文言
+    - 未確認：公開版での favicon と音源クレジットダイアログの見た目
   - タイトルから END を経てタイトルへ戻るまでエラーなく進行すること
+    - 確認済み：本編の最初の台詞まで、コンソールにエラーが出ないこと
+    - 未確認：公開版での END までの通しプレイ
