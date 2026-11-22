@@ -21,7 +21,7 @@
 
 ## 遊び方
 
-ゲームを遊ぶときは、Cloudflare Pages の公開 URL をブラウザで開く。公開 URL は Cloudflare の設定後に決まる（https://novel-app-replies.pages.dev を予定）。設定が終わるまでは公開版はない。
+ゲームを遊ぶときは、Cloudflare Pages の公開 URL <https://novel-app-replies.pages.dev> をブラウザで開く。
 
 このリポジトリには BGM・SE の音源ファイルが含まれない。音源はライセンス上の理由から Private リポジトリで管理しているため、このリポジトリだけを clone して起動した場合は音が鳴らない（音声を読み込めなくても物語の進行は止まらない設計である）。
 
